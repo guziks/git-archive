@@ -7,11 +7,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.File;
 import java.util.Scanner;
-import java.util.Date;
 import java.time.format.DateTimeFormatter;
-import java.text.Format;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.time.DateTimeException;
 
 /**
  * Export master commit from git repository.
@@ -33,9 +32,6 @@ class GitArchive
             System.exit(1);
         }
 
-        System.out.println(workTreePath);
-        System.out.println(repoName);
-
         ProcessBuilder pb = new ProcessBuilder();
         pb.directory(new File(workTreePath));
         pb.command("git", "show", "-s", "--format=%ct %h");
@@ -53,18 +49,17 @@ class GitArchive
             System.exit(1);
         }
 
-        System.out.println(commitTimeStamp);
-        System.out.println(commitHash);
-
-        // Date commitDate = new Date(commitTimeStamp);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd-HHmm");
+
+        try {
+            commitDateTime = Instant.ofEpochSecond(commitTimeStamp)
+                .atZone(ZoneId.systemDefault())
+                .format(formatter);
+        } catch (DateTimeException e) {
+            System.out.println("Bad timestamp");
+            System.exit(1);
+        }
         
-        // commitDateTime = formatter.format(commitDate.toInstant());
-
-        commitDateTime = Instant.ofEpochSecond(commitTimeStamp)
-            .atZone(ZoneId.systemDefault())
-            .format(formatter);
-
         String outputFileName = repoName + "." + commitDateTime + "." + commitHash + ".zip";
         String outputFilePath = "../" + outputFileName;
 
