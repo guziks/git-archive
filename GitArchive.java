@@ -7,6 +7,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.File;
 import java.util.Scanner;
+import java.util.Date;
+import java.time.format.DateTimeFormatter;
+import java.text.Format;
+import java.time.Instant;
+import java.time.ZoneId;
 
 /**
  * Export master commit from git repository.
@@ -35,20 +40,30 @@ class GitArchive
         pb.directory(new File(workTreePath));
         pb.command("git", "show", "-s", "--format=%ct %h");
         
+        Long commitTimeStamp = 0L;
         String commitDateTime = "";
         String commitHash = "";
 
         try {
             Scanner scan = new Scanner(pb.start().getInputStream());
-            commitDateTime = scan.next();
+            commitTimeStamp = scan.nextLong();
             commitHash = scan.next();
         } catch (IOException e) {
             System.out.println("Fail to read commit info");
             System.exit(1);
         }
 
-        System.out.println(commitDateTime);
+        System.out.println(commitTimeStamp);
         System.out.println(commitHash);
+
+        // Date commitDate = new Date(commitTimeStamp);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd-HHmm");
+        
+        // commitDateTime = formatter.format(commitDate.toInstant());
+
+        commitDateTime = Instant.ofEpochSecond(commitTimeStamp)
+            .atZone(ZoneId.systemDefault())
+            .format(formatter);
 
         String outputFileName = repoName + "." + commitDateTime + "." + commitHash + ".zip";
         String outputFilePath = "../" + outputFileName;
