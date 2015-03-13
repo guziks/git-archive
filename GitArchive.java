@@ -15,34 +15,24 @@ import java.util.Scanner;
  */
 class GitArchive
 {   
-    private static String pathToName(String path) throws InvalidPathException
-    {
-        return Paths.get(path).getFileName().toString();
-    }
-    
     public static void main(String... args)
     {
-        String workTreePathString = "";
-        String workTreeParentString = "";
-        String gitDirPathString = "";
+        String workTreePath = "";
         String repoName = "";
         try {
-            Path workTreePath = Paths.get(args[0]);
-            workTreePathString = workTreePath.toString();
-            workTreeParentString = workTreePath.getParent().toString();
-            gitDirPathString = workTreePath.resolve(".git").toString();
-            repoName = workTreePath.getFileName().toString();
+            Path path = Paths.get(args[0]);
+            workTreePath = path.toString();
+            repoName = path.getFileName().toString();
         } catch (InvalidPathException e) {
             System.out.println("Invalid path");
             System.exit(1);
         }
 
-        System.out.println(workTreePathString);
-        System.out.println(gitDirPathString);
+        System.out.println(workTreePath);
         System.out.println(repoName);
 
         ProcessBuilder pb = new ProcessBuilder();
-        pb.directory(new File(workTreePathString));
+        pb.directory(new File(workTreePath));
         pb.command("git", "show", "-s", "--format=%ct %h");
         
         String commitDateTime = "";
@@ -53,18 +43,30 @@ class GitArchive
             commitDateTime = scan.next();
             commitHash = scan.next();
         } catch (IOException e) {
+            System.out.println("Fail to read commit info");
             System.exit(1);
         }
 
         System.out.println(commitDateTime);
         System.out.println(commitHash);
 
-        String outputFilePath = "../" + repoName + "." + commitDateTime + "." + commitHash + ".zip";
+        String outputFileName = repoName + "." + commitDateTime + "." + commitHash + ".zip";
+        String outputFilePath = "../" + outputFileName;
 
         pb.command("git", "archive", "-o", outputFilePath, "master");
         try {
-            pb.start();
+            int exitStatus = pb.start().waitFor();
+            if (exitStatus == 0) {
+                System.out.println("Archive created: " + outputFileName);
+            } else {
+                System.out.println("Oops, git failed to create archive");
+                System.exit(1);
+            }
         } catch (IOException e) {
+            System.out.println("Fail to archive commit");
+            System.exit(1);
+        } catch (InterruptedException e) {
+            System.out.println("Git process was terminated");
             System.exit(1);
         }
     }
