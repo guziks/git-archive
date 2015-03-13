@@ -4,7 +4,6 @@ import java.nio.file.InvalidPathException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.File;
 import java.util.Scanner;
 import java.time.format.DateTimeFormatter;
@@ -44,7 +43,7 @@ class GitArchive
             Scanner scan = new Scanner(pb.start().getInputStream());
             commitTimeStamp = scan.nextLong();
             commitHash = scan.next();
-        } catch (IOException e) {
+        } catch (Exception e) {
             System.out.println("Fail to read commit info");
             System.exit(1);
         }
