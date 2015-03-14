@@ -33,6 +33,11 @@ class GitArchive
     {
         checkGitCommand();
 
+        if (args.length == 0) {
+            System.out.println("Usage:\n\tjava -jar GitArchive.jar <path to git repository>");
+            System.exit(1);
+        }
+
         String workTreePath = "";
         String repoName = "";
         try {
