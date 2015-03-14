@@ -1,24 +1,15 @@
-## Функции программы GitArchive
+# Git Archive
 
-* принять один аргумент (полный путь к репозиторию)
-* преобразовать путь к имени репозитория (выделить последнюю часть пути)
-* получить дату и время создания master коммита (формат yyyymmdd-hhmm)
-* получить хеш master коммита (выделить первые 7 символов)
-* архивировать master коммит
+Simple utillity to archive master commit of git repository.
 
-## Команды
+## Usage
 
-Получить хеш
 ```
-git show -s --format=%h
+java -jar GitArchive.jar <path to git repository>
 ```
 
-Получить UNIX timestamp
-```
-git show -s --format=%ct
-```
+## Output file
 
-Архивировать
 ```
-git --git-dir="%1"\.git --work-tree="%1" archive -o "%1\<repo name>.<datetime>.<hash>.zip" master
+<path to repo>/../<repo folder name>.<yyyyMMdd-HHmm>.<short commit hash>.zip
 ```
